@@ -629,39 +629,50 @@
                 });
             });
             
-            function handleFormSubmit(formId, modalToCloseId) {
-                const form = document.getElementById(formId);
-                if (form) {
-                    form.addEventListener('submit', function(event) {
-                        event.preventDefault(); 
-                        
-                        const formData = new FormData(form);
-                        const data = {};
-                        formData.forEach((value, key) => {
-                            data[key] = value;
-                        });
+            function handleSubmitToGoogleForm(formId, googleFormUrl, fieldMapping) {
+    const form = document.getElementById(formId);
+    if (!form) return;
 
-                        console.log(`Данные из формы "${formId}":`, data);
-                        // Production code for sending data to a server would go here
-                        // fetch('/your-backend-endpoint', {
-                        //     method: 'POST',
-                        //     headers: { 'Content-Type': 'application/json', },
-                        //     body: JSON.stringify(data),
-                        // })
-                        // .then(response => response.json())
-                        // .then(result => {
-                        //     console.log('Success:', result);
-                        //     showSuccessMessage();
-                        //     form.reset(); 
-                        //     if (modalToCloseId) {
-                        //         const modal = document.getElementById(modalToCloseId);
-                        //         closeModal(modal);
-                        //     }
-                        // })
-                        // .catch(error => {
-                        //     console.error('Error:', error);
-                        //     alert('Произошла ошибка при отправке данных.');
-                        // });
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        const body = new URLSearchParams();
+
+        // Заполняем маппинг полей
+        for (const key in fieldMapping) {
+            if (key === 'form_source_google_entry') {
+                // Это отдельное значение — источник заявки
+                body.append(fieldMapping[key], formData.get('form_source'));
+            } else {
+                // Обычные поля из формы
+                const googleEntry = fieldMapping[key];
+                const value = formData.get(key);
+                if (value) {
+                    body.append(googleEntry, value);
+                }
+            }
+        }
+
+        // Отправляем данные в Google Form
+        fetch(googleFormUrl, {
+            method: 'POST',
+            body: body,
+            mode: 'no-cors' // <-- важно для Google Forms, но ограничения CORS всё равно могут быть
+        })
+        .then(() => {
+            console.log('Форма успешно отправлена в Google Form');
+            showSuccessMessage();
+            form.reset();
+            const modal = document.getElementById(form.closest('.modal')?.id);
+            if (modal) closeModal(modal);
+        })
+        .catch(error => {
+            console.error('Ошибка при отправке формы:', error);
+            alert('Произошла ошибка при отправке данных.');
+        });
+    });
+}
 
                         showSuccessMessage();
                         form.reset(); 
@@ -681,6 +692,16 @@
             }
 
             handleFormSubmit('pricelist-form', 'pricelist-modal');
+            handleSubmitToGoogleForm(
+    'pricelist-form',
+    'https://docs.google.com/forms/u/0/d/e/1FAIpQLSd4yzGF4BFPb5zsr9z-hn_mVTdc0pTa5ZmSUCHDTFFDUpqglw/formResponse', 
+    {
+        'email': 'entry.321991256',     // Поле Email в Google Form
+        'name': 'entry.1503550107',      // Поле Имя в Google Form
+        'form_source_google_entry': 'entry.1323514258' // ← заменить на ID поля "Источник заявки"
+    }
+);
+            );
             handleFormSubmit('samples-form', 'samples-modal');
             handleFormSubmit('catalog-form', 'catalog-modal');
             handleFormSubmit('main-contact-form', null); 
