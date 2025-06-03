@@ -11,12 +11,49 @@
             font-family: 'Inter', sans-serif;
             background-color: #FFFFFF; 
             color: #374151; 
+            
         }
-        .hero-bg {
-            background-image: url('https://placehold.co/1920x1080/FFF8E1/424242?text=Silk+Shine&font=Inter&font-size=90px&font-weight=bold'); 
+        .hero-section { /* Переименовали .hero-bg в .hero-section для ясности */
+            min-height: 100vh; /* Высота на весь экран */
+            position: relative; /* Для позиционирования видео и оверлея */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Чтобы видео не выходило за пределы */
+            text-align: center;
+            
+        }
+        #hero-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100; /* Видео должно быть позади контента */
+            transform: translateX(-50%) translateY(-50%);
             background-size: cover;
-            background-position: center;
+            object-fit: cover; /* Гарантирует, что видео покроет всю область */
         }
+
+        .hero-overlay { /* Оверлей для читаемости текста поверх видео */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3); /* Белый полупрозрачный, можно настроить */
+            /* Если нужен более темный оверлей для светлого видео: background-color: rgba(0, 0, 0, 0.4); */
+            z-index: -50; /* Оверлей над видео, но под контентом */
+        }
+
+        .hero-content { /* Контейнер для текстового контента в Hero */
+            position: relative;
+            z-index: 1; /* Контент поверх оверлея и видео */
+            color: #1F2937; /* Цвет текста для Hero, если нужно изменить для контраста с видео */
+        }
+        /* Конец изменений для Hero-секции с видео */
         .section-title {
             font-size: 2.5rem; 
             font-weight: 700;
@@ -180,11 +217,18 @@
         </div>
     </nav>
 
-    <header class="hero-bg min-h-screen flex items-center justify-center text-gray-800 relative"> 
-        <div class="absolute inset-0 bg-white/30 backdrop-blur-sm"></div> 
-        <div class="container mx-auto px-6 text-center relative z-10">
+    <header class="hero-section"> 
+        <video autoplay muted loop playsinline id="hero-video">
+            <!-- Например, если ваш репозиторий `yourusername/silk-shine-landing`, 
+                 то путь будет '/silk-shine-landing/videos/hero-background.mp4' 
+                 ИЛИ просто 'videos/hero-background.mp4', если GitHub Pages настроен правильно.
+                 Проверьте, какой путь работает после загрузки видео. -->
+            <source src="videos/Жакет Opium M-42 и брюки P-35.mp4" type="video/mp4">
+            Ваш браузер не поддерживает тег video. </video>
+        <div class="hero-overlay"></div> 
+        <div class="container mx-auto px-6 hero-content"> {/* Добавлен класс hero-content */}
             <div class="animated-element">
-                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-gray-800"> 
+                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight"> 
                     Оптовые поставки роскошных тканей<br class="hidden md:block"> для женской одежды
                 </h1>
                 <p class="text-xl md:text-2xl mb-10 text-amber-600"> 
